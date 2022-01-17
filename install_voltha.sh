@@ -30,7 +30,6 @@ helm upgrade --install --create-namespace -n infra voltha-infra onf/voltha-infra
 
 echo "Waiting for the voltha infra pods to be up and running"
 cmd=$(kubectl get pods -n infra | grep -c Running)
-SLEEP_TIME=60
 for i in {1..5}
 do
         if [[ $cmd == 11 ]]

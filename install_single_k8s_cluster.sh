@@ -49,13 +49,17 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
 
 echo "Verifying whether flannel pod is up and running"
-cmd=$(kubectl get pods -A --field-selector status.phase=Running | grep flannel)  
+cmd=$(kubectl get pods -A --field-selector status.phase=Running | grep flannel) 
+SLEEP_TIME=60
 for i in {1..5}                                                                  
 do                                                                               
         if [[ $cmd == *"Running"* ]]                                             
         then                                                                     
                 echo "flannel driver runs successfully"                          
-                break                                                            
+                break
+        else
+                echo "Sleep for $SLEEP_TIME seconds"
+                sleep $SLEEP_TIME                                                         
         fi                                                                       
 done
 
