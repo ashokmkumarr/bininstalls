@@ -5,11 +5,11 @@ SLEEP_TIME=60
 echo "Verifying pre-checks before installing voltha"
 cmd=$(lscpu | grep '^CPU(s):' | tr -s ' ' | awk '{ print $2; }')
 echo "$cmd"
-if [ "$cmd" -ge 80 ]
+if [ "$cmd" -ge 8 ]
 then
-        echo "CPU is more than 8 cores"
+        echo "CPU is greater than equal to 8 cores"
 else
-        echo "Please ensure that CPU is more than 8 cores"
+        echo "Please ensure that CPU is not equal to or more than 8 cores"
         exit 1
 fi
 
