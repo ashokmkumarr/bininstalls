@@ -84,6 +84,67 @@ done
 echo "--------------------------------------------------------------------------------------------------"
 echo "Port forwarding to expose ONOS CLI(Port:8101), ONOS API(Port:8181), Kibana(Port:5601)"
 echo "--------------------------------------------------------------------------------------------------"
+
+#!/bin/bash
+
+echo "--------------------------------------------------------------------------------------------------"
+echo "Verify whether the ports are available for port-forwarding"
+echo "--------------------------------------------------------------------------------------------------"
+
+PORT_8101="8101"
+PORT_8181="8181"
+PORT_16686="16686"
+PORT_5601="5601"
+
+echo "Verify port $PORT_8101 is available for port forwarding"
+get_pid=$(ps -aux | grep "$PORT_8101":"$PORT_8101"  | grep -v "grep" | awk '{print $2}')
+
+if [ ! -z "$get_pid" ]
+then
+            echo "PID present for port $PORT_8101"
+            echo "killing the process: $get_pid"
+            echo "$(kill -9 $get_pid)"
+else
+            echo -e "PID not present. Port $PORT_8101 available for port-forwarding\n"
+fi
+
+echo "Verify port $PORT_8181 is available for port forwarding"
+get_pid=$(ps -aux | grep "$PORT_8181":"$PORT_8181"  | grep -v "grep" | awk '{print $2}')
+
+if [ ! -z "$get_pid" ]
+then
+            echo "PID present for port $PORT_8181"
+            echo "killing the process: $get_pid"
+            echo "$(kill -9 $get_pid)"
+else
+            echo -e "PID not present. Port $PORT_8181 available for port-forwarding\n"
+fi
+
+echo "Verify port $PORT_16686 is available for port forwarding"
+get_pid=$(ps -aux | grep "$PORT_16686"  | grep -v "grep" | awk '{print $2}')
+
+if [ ! -z "$get_pid" ]
+then
+            echo "PID present for port $PORT_16686"
+            echo "killing the process: $get_pid"
+            echo "$(kill -9 $get_pid)"
+else
+            echo -e "PID not present. Port $PORT_16686 available for port-forwarding\n"
+fi
+
+echo "Verify port $PORT_5601 is available for port forwarding"
+get_pid=$(ps -aux | grep "$PORT_5601"  | grep -v "grep" | awk '{print $2}')
+
+if [ ! -z "$get_pid" ]
+then
+            echo "PID present for port $PORT_5601"
+            echo "killing the process: $get_pid"
+            echo "$(kill -9 $get_pid)"
+else
+            echo -e "PID not present. Port $PORT_5601 available for port-forwarding\n"
+fi
+
+sleep $MIN_SLEEP_TIME
 kubectl -n infra port-forward --address 0.0.0.0 svc/voltha-infra-onos-classic-hs 8101:8101 &
 sleep $MIN_SLEEP_TIME
 kubectl -n infra port-forward --address 0.0.0.0 svc/voltha-infra-onos-classic-hs 8181:8181 &
