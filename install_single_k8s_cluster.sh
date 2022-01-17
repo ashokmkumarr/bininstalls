@@ -20,7 +20,6 @@ then
         echo "Kuberetes installed in the system"
 else
         echo "Kubernetes is not installed in the system"
-        exit 1
 fi
 
 echo "--------------------------------------------------------------------------------------------------"
@@ -49,11 +48,11 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
 
 echo "Verifying whether flannel pod is up and running"
-cmd="kubectl get pods -A --field-selector status.phase=Running | grep flannel"
 SLEEP_TIME=60
 for i in {1..5}                                                                  
-do                                                                               
-        if [ "$cmd" == *"Running"* ]                                           
+do
+        cmd=$(kubectl get pods -A --field-selector status.phase=Running | grep flannel)                                                                                
+        if [[ $cmd == *"Running"* ]]                                             
         then                                                                     
                 echo "flannel driver runs successfully"                          
                 break
@@ -61,8 +60,7 @@ do
                 if [ $i == 5 ]
                 then
                         echo "flannel driver is not running. Please verify the pod"          
-                        echo "Exiting the script"                            
-                        exit 1 
+                        break 
                 fi            
                 echo "Sleep for $SLEEP_TIME seconds"
                 sleep $SLEEP_TIME                                                     
@@ -73,6 +71,28 @@ echo "--------------------------------------------------------------------------
 echo "Check the status after about a minute and it should show as Ready"
 echo "--------------------------------------------------------------------------------------------------"
 kubectl get nodes
+POD_COUNT_1=8
+for i in {1..5}
+do
+        cmd1=$(kubectl get pods -n kube-system | grep -c Running)
+        cmd2=$(kubectl -n kube-system get pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY:status.containerStatuses[*].ready | grep -c true)
+
+        if [[ $cmd1 == $POD_COUNT_1  && $cmd2 == $POD_COUNT_1 ]]
+        then
+                echo "All the infra objects are running"
+                break
+        else
+                if [ $i == 5 ]
+                then
+                        echo "All the infra objects are not running, Please verify the pods"  
+                        echo "Exiting the script"                           
+                        exit 1
+                fi
+                echo "Sleep for $SLEEP_TIME seconds"
+                sleep $SLEEP_TIME
+
+        fi
+done
 
 echo "--------------------------------------------------------------------------------------------------"
 echo "Configuring master Node as a Worker by tainting the master node"
