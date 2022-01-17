@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SLEEP_TIME=60
+MIN_SLEEP_TIME=5
 echo "--------------------------------------------------------------------------------------------------"
 echo "Verifying pre-checks before installing voltha"
 echo "--------------------------------------------------------------------------------------------------"
@@ -84,9 +85,13 @@ echo "--------------------------------------------------------------------------
 echo "Port forwarding to expose ONOS CLI(Port:8101), ONOS API(Port:8181), Kibana(Port:5601)"
 echo "--------------------------------------------------------------------------------------------------"
 kubectl -n infra port-forward --address 0.0.0.0 svc/voltha-infra-onos-classic-hs 8101:8101 &
+sleep $MIN_SLEEP_TIME
 kubectl -n infra port-forward --address 0.0.0.0 svc/voltha-infra-onos-classic-hs 8181:8181 &
+sleep $MIN_SLEEP_TIME
 kubectl port-forward -n infra --address 0.0.0.0 svc/voltha-infra-voltha-tracing-jaeger-gui 16686 &
+sleep $MIN_SLEEP_TIME
 kubectl port-forward -n infra --address 0.0.0.0 svc/voltha-infra-kibana 5601 &
+sleep $MIN_SLEEP_TIME
 
 curl -v -X POST -H Content-type:application/json -H kbn-xsrf:true http://localhost:5601/api/saved_objects/index-pattern/logst* -d '{"attributes":{"title":"logst*","timeFieldName":"@timestamp"}}'
 
@@ -150,11 +155,6 @@ do
 done
 
 echo "--------------------------------------------------------------------------------------------------"
-echo "Port forwarding to expose voltha-api using port 55555"
-kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
-echo "--------------------------------------------------------------------------------------------------"
-
-echo "--------------------------------------------------------------------------------------------------"
 echo "Installing voltctl"
 echo "--------------------------------------------------------------------------------------------------"
 HOSTOS="$(uname -s | tr "[:upper:]" "[:lower:"])"
@@ -197,14 +197,12 @@ do
         fi
 done
 
-echo "--------------------------------------------------------------------------------------------------"
-echo "Creating adapter and devices"
-echo "--------------------------------------------------------------------------------------------------"
-kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
-voltctl device create -t openolt -H bbsim0.voltha.svc:50060
 
+echo "--------------------------------------------------------------------------------------------------"
+echo "Port forwarding to expose voltha-api using port 55555"
 kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
-voltctl device list --filter Type~openolt -q | xargs voltctl device enable
+sleep $MIN_SLEEP_TIME
+echo "--------------------------------------------------------------------------------------------------"
 
 echo "Show adapter list"
 voltctl adapter list
@@ -230,13 +228,19 @@ do
     fi
 done
 
+echo "--------------------------------------------------------------------------------------------------"
+echo "Creating adapter and devices"
+echo "--------------------------------------------------------------------------------------------------"
+voltctl device create -t openolt -H bbsim0.voltha.svc:50060
+voltctl device list --filter Type~openolt -q | xargs voltctl device enable
+
 echo "Show device list"
 voltctl device list
 
 echo "Verifying whether the devices are created"
 
-SLEEP_TIME=30
-for i in {1..3}
+SLEEP_TIME=60
+for i in {1..6}
 do
         cmd=$(voltctl device list | grep -c ACTIVE)
         if [[ $cmd == 2 ]]
@@ -251,5 +255,6 @@ do
                 fi
                 echo "Sleep for $SLEEP_TIME seconds"
                 sleep $SLEEP_TIME
+                kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
     fi
 done
