@@ -24,12 +24,12 @@ echo "Creating voltha infra pods"
 helm upgrade --install --create-namespace -n infra voltha-infra onf/voltha-infra
 
 echo "Waiting for the voltha infra pods to be up and running"
-cmd1=$(kubectl get pods -n infra | grep -c Running)
-cmd2=$(kubectl -n infra get pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY:status.containerStatuses[*].ready | grep -c true)
+cmd1="kubectl get pods -n infra | grep -c Running"
+cmd2="kubectl -n infra get pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY:status.containerStatuses[*].ready | grep -c true"
 POD_COUNT_1=11
 for i in {1..5}
 do
-        if [[ $cmd1 == $POD_COUNT_1  && $cmd2 == $POD_COUNT_1 ]]
+        if [ "$cmd1" == $POD_COUNT_1  && "$cmd2" == $POD_COUNT_1 ]
         then
                 echo "All the infra objects are running"
                 break
@@ -50,12 +50,12 @@ echo "Adding tracing and kibana pods to infra"
 helm upgrade --install --create-namespace -n infra voltha-infra onf/voltha-infra --set voltha-tracing.enabled=true --set efk.enabled=true
 
 echo "Waiting for the voltha infra pods to be up and running"
-cmd1=$(kubectl get pods -n infra | grep -c Running)
-cmd2=$(kubectl -n infra get pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY:status.containerStatuses[*].ready | grep -c true)
+cmd1="kubectl get pods -n infra | grep -c Running"
+cmd2="kubectl -n infra get pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY:status.containerStatuses[*].ready | grep -c true"
 POD_COUNT_2=11
 for i in {1..5}
 do
-        if [[ $cmd1 == $POD_COUNT_2  && $cmd2 == $POD_COUNT_2 ]]
+        if [ "$cmd1" == $POD_COUNT_2  && "$cmd2" == $POD_COUNT_2 ]
         then
                 echo "All the infra objects are running"
                 break
