@@ -10,7 +10,7 @@ then
         echo "Docker installed"
 else
         echo "Docker is not installed in the system. Please refer the logs"
-        break          
+        exit 1         
 fi  
 
 kubectl_v=$(kubectl version)
@@ -20,7 +20,7 @@ then
         echo "Kuberetes installed in the system"
 else
         echo "Kubernetes is not installed in the system"
-        break
+        exit 1
 fi
 
 echo "--------------------------------------------------------------------------------------------------"
@@ -58,8 +58,14 @@ do
                 echo "flannel driver runs successfully"                          
                 break
         else
+                if [ $i == 5 ]
+                then
+                        echo "flannel driver is not running. Please verify the pod"          
+                        echo "Exiting the script"                            
+                        exit 1 
+                fi            
                 echo "Sleep for $SLEEP_TIME seconds"
-                sleep $SLEEP_TIME                                                         
+                sleep $SLEEP_TIME                                                     
         fi                                                                       
 done
 
@@ -69,9 +75,9 @@ echo "--------------------------------------------------------------------------
 kubectl get nodes
 
 echo "--------------------------------------------------------------------------------------------------"
-echo "Master Node as a Worker"
+echo "Configuring master Node as a Worker by tainting the master node"
 echo "--------------------------------------------------------------------------------------------------"
-kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-
 
 cmd=$(kubeadm token create --print-join-command)
 echo -e "Use the below command to join the worker node to master node:\n $cmd"
