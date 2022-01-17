@@ -312,7 +312,7 @@ do
                         echo "Port-forwarding voltha-api"
                         kubectl -n voltha port-forward svc/voltha-voltha-api "$PORT_55555" &
                 fi
-    fi
+        fi
 done
 
 echo "--------------------------------------------------------------------------------------------------"
@@ -329,10 +329,10 @@ echo "Verifying whether the devices are created"
 SLEEP_TIME=60
 for i in {1..6}
 do
-        cmd=$(voltctl device list | grep -c ACTIVE)
+        cmd=$(voltctl device list | grep -c ENABLED)
         if [[ $cmd == 2 ]]
         then
-                echo "Devices for openolt and openomci are created successfully"
+                echo "Devices for openolt and openomci are created enabled successfully"
                 break
         else
                 if [ $i == 3 ]
@@ -353,5 +353,5 @@ do
                         echo "Port-forwarding voltha-api"
                         kubectl -n voltha port-forward svc/voltha-voltha-api "$PORT_55555" &
                 fi
-    fi
+        fi
 done
