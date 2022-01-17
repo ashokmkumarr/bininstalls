@@ -157,6 +157,7 @@ sleep $MIN_SLEEP_TIME
 
 curl -v -X POST -H Content-type:application/json -H kbn-xsrf:true http://localhost:5601/api/saved_objects/index-pattern/logst* -d '{"attributes":{"title":"logst*","timeFieldName":"@timestamp"}}'
 
+echo -e "\n"
 echo "--------------------------------------------------------------------------------------------------"
 echo "Deploying VOLTHA"
 echo "--------------------------------------------------------------------------------------------------"
@@ -227,6 +228,7 @@ fi
 sudo wget https://github.com/opencord/voltctl/releases/download/v1.3.1/voltctl-1.3.1-$HOSTOS-$HOSTARCH -O /usr/local/bin/voltctl
 sudo chmod a+x /usr/local/bin/voltctl
 source <(voltctl completion bash)
+voltctl --server=voltha.voltha.com:443 --kvstore=localhost:443 --tls version
 
 echo "--------------------------------------------------------------------------------------------------"
 echo "Installing nginix Ingress controller"
@@ -290,6 +292,7 @@ do
         if [[ $cmd1 == 1  && $cmd2 == 1 ]]
         then
                 echo "Adapters for openolt and openomci are created successfully"
+                break
         else
                 if [ $i == 3 ]
                 then
@@ -330,6 +333,7 @@ do
         if [[ $cmd == 2 ]]
         then
                 echo "Devices for openolt and openomci are created successfully"
+                break
         else
                 if [ $i == 3 ]
                 then
