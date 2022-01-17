@@ -65,6 +65,7 @@ echo "Docker version:$($get_docker_version)"
 get_k8s_version="kubectl version"
 echo "K8s version:$($get_k8s_version)"
 
+<< EOF
 docker_v=$(docker -v)                           
 echo "$docker_v"                                
 docker_string_pattern="Docker version"          
@@ -79,9 +80,8 @@ kubectl_v=$(kubectl version)
 kubernets_string_pattern="Client Version"
 if [[ $kubectl_v == *$kubernetes_string_pattern* ]]
 then
-        echo "Kuberetes installed in the system"
+        echo "Kubernetes installed in the system"
 else
         echo "Kubernetes is not installed in the system. Please refer the logs"
 fi
-
-
+EOF
