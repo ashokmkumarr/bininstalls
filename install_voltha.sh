@@ -2,6 +2,12 @@
 
 SLEEP_TIME=60
 MIN_SLEEP_TIME=5
+PORT_8101="8101"
+PORT_8181="8181"
+PORT_16686="16686"
+PORT_5601="5601"
+PORT_55555="55555"
+
 echo "--------------------------------------------------------------------------------------------------"
 echo "Verifying pre-checks before installing voltha"
 echo "--------------------------------------------------------------------------------------------------"
@@ -91,21 +97,16 @@ echo "--------------------------------------------------------------------------
 echo "Verify whether the ports are available for port-forwarding"
 echo "--------------------------------------------------------------------------------------------------"
 
-PORT_8101="8101"
-PORT_8181="8181"
-PORT_16686="16686"
-PORT_5601="5601"
-
 echo "Verify port $PORT_8101 is available for port forwarding"
 get_pid=$(ps -aux | grep "$PORT_8101":"$PORT_8101"  | grep -v "grep" | awk '{print $2}')
 
 if [ ! -z "$get_pid" ]
 then
-            echo "PID present for port $PORT_8101"
-            echo "killing the process: $get_pid"
-            echo "$(kill -9 $get_pid)"
+        echo "PID present for port $PORT_8101"
+        echo "killing the process: $get_pid"
+        echo "$(kill -9 $get_pid)"
 else
-            echo -e "PID not present. Port $PORT_8101 available for port-forwarding\n"
+        echo -e "PID not present. Port $PORT_8101 available for port-forwarding\n"
 fi
 
 echo "Verify port $PORT_8181 is available for port forwarding"
@@ -113,11 +114,11 @@ get_pid=$(ps -aux | grep "$PORT_8181":"$PORT_8181"  | grep -v "grep" | awk '{pri
 
 if [ ! -z "$get_pid" ]
 then
-            echo "PID present for port $PORT_8181"
-            echo "killing the process: $get_pid"
-            echo "$(kill -9 $get_pid)"
+        echo "PID present for port $PORT_8181"
+        echo "killing the process: $get_pid"
+        echo "$(kill -9 $get_pid)"
 else
-            echo -e "PID not present. Port $PORT_8181 available for port-forwarding\n"
+        echo -e "PID not present. Port $PORT_8181 available for port-forwarding\n"
 fi
 
 echo "Verify port $PORT_16686 is available for port forwarding"
@@ -125,11 +126,11 @@ get_pid=$(ps -aux | grep "$PORT_16686"  | grep -v "grep" | awk '{print $2}')
 
 if [ ! -z "$get_pid" ]
 then
-            echo "PID present for port $PORT_16686"
-            echo "killing the process: $get_pid"
-            echo "$(kill -9 $get_pid)"
+        echo "PID present for port $PORT_16686"
+        echo "killing the process: $get_pid"
+        echo "$(kill -9 $get_pid)"
 else
-            echo -e "PID not present. Port $PORT_16686 available for port-forwarding\n"
+        echo -e "PID not present. Port $PORT_16686 available for port-forwarding\n"
 fi
 
 echo "Verify port $PORT_5601 is available for port forwarding"
@@ -137,11 +138,11 @@ get_pid=$(ps -aux | grep "$PORT_5601"  | grep -v "grep" | awk '{print $2}')
 
 if [ ! -z "$get_pid" ]
 then
-            echo "PID present for port $PORT_5601"
-            echo "killing the process: $get_pid"
-            echo "$(kill -9 $get_pid)"
+        echo "PID present for port $PORT_5601"
+        echo "killing the process: $get_pid"
+        echo "$(kill -9 $get_pid)"
 else
-            echo -e "PID not present. Port $PORT_5601 available for port-forwarding\n"
+        echo -e "PID not present. Port $PORT_5601 available for port-forwarding\n"
 fi
 
 sleep $MIN_SLEEP_TIME
@@ -259,9 +260,21 @@ do
 done
 
 
+echo "Verify port $PORT_55555 is available for port forwarding"
+get_pid=$(ps -aux | grep "api $PORT_55555"  | grep -v "grep" | awk '{print $2}')
+
+if [ ! -z "$get_pid" ]
+then
+        echo "PID present for port $PORT_8101"
+        echo "killing the process: $get_pid"
+        echo "$(kill -9 $get_pid)"
+else
+        echo -e "PID not present. Port $PORT_8101 available for port-forwarding\n"
+fi
+
 echo "--------------------------------------------------------------------------------------------------"
-echo "Port forwarding to expose voltha-api using port 55555"
-kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
+echo "Port forwarding to expose voltha-api using port $PORT_55555"
+kubectl -n voltha port-forward svc/voltha-voltha-api "$PORT_55555" &
 sleep $MIN_SLEEP_TIME
 echo "--------------------------------------------------------------------------------------------------"
 
@@ -286,12 +299,21 @@ do
                 fi
                 echo "Sleep for $SLEEP_TIME seconds"
                 sleep $SLEEP_TIME
-                kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
+                echo "Verify port $PORT_55555 is available for port forwarding"
+                get_pid=$(ps -aux | grep "api $PORT_55555"  | grep -v "grep" | awk '{print $2}')
+                if [ ! -z "$get_pid" ]
+                then
+                        echo "PID present for port $PORT_55555"
+                else   
+                        echo -e "PID not present. Port $PORT_55555 available for port-forwarding\n"
+                        echo "Port-forwarding voltha-api"
+                        kubectl -n voltha port-forward svc/voltha-voltha-api "$PORT_55555" &
+                fi
     fi
 done
 
 echo "--------------------------------------------------------------------------------------------------"
-echo "Creating adapter and devices"
+echo "Creating devices"
 echo "--------------------------------------------------------------------------------------------------"
 voltctl device create -t openolt -H bbsim0.voltha.svc:50060
 voltctl device list --filter Type~openolt -q | xargs voltctl device enable
@@ -317,6 +339,15 @@ do
                 fi
                 echo "Sleep for $SLEEP_TIME seconds"
                 sleep $SLEEP_TIME
-                kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
+                echo "Verify port $PORT_55555 is available for port forwarding"
+                get_pid=$(ps -aux | grep "api $PORT_55555"  | grep -v "grep" | awk '{print $2}')
+                if [ ! -z "$get_pid" ]
+                then
+                        echo "PID present for port $PORT_55555"
+                else   
+                        echo -e "PID not present. Port $PORT_55555 available for port-forwarding\n"
+                        echo "Port-forwarding voltha-api"
+                        kubectl -n voltha port-forward svc/voltha-voltha-api "$PORT_55555" &
+                fi
     fi
 done
