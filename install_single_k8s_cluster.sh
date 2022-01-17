@@ -1,5 +1,29 @@
 #!/bin/bash
 echo "--------------------------------------------------------------------------------------------------"
+echo "Verifying whether docker and kubenetes is installed in the system"
+echo "--------------------------------------------------------------------------------------------------"
+docker_v=$(docker -v)                           
+echo "$docker_v"                                
+docker_string_pattern="Docker version"          
+if [[ $docker_v == *$docker_string_pattern* ]]  
+then                                            
+        echo "Docker installed"
+else
+        echo "Docker is not installed in the system. Please refer the logs"
+        break          
+fi  
+
+kubectl_v=$(kubectl version)
+kubernets_string_pattern="Client Version"
+if [[ $kubectl_v == *$kubernetes_string_pattern* ]]
+then
+        echo "Kuberetes installed in the system"
+else
+        echo "Kubernetes is not installed in the system"
+        break
+fi
+
+echo "--------------------------------------------------------------------------------------------------"
 echo "Initializing k8s cluster"
 echo "--------------------------------------------------------------------------------------------------"
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
@@ -22,9 +46,28 @@ echo "--------------------------------------------------------------------------
 echo "Install the Network plugin - flannel"
 echo "--------------------------------------------------------------------------------------------------"
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-<< EOF
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+echo "Verifying whether flannel pod is up and running"
+cmd=$(kubectl get pods -A --field-selector status.phase=Running | grep flannel)  
+for i in {1..5}                                                                  
+do                                                                               
+        if [[ $cmd == *"Running"* ]]                                             
+        then                                                                     
+                echo "flannel driver runs successfully"                          
+                break                                                            
+        fi                                                                       
+done
+
 echo "--------------------------------------------------------------------------------------------------"
 echo "Check the status after about a minute and it should show as Ready"
 echo "--------------------------------------------------------------------------------------------------"
 kubectl get nodes
-EOF
+
+echo "--------------------------------------------------------------------------------------------------"
+echo "Master Node as a Worker"
+echo "--------------------------------------------------------------------------------------------------"
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+cmd=$(kubeadm token create --print-join-command)
+echo -e "Use the below command to join the worker node to master node:\n $cmd"
