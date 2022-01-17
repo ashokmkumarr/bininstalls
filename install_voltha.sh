@@ -225,6 +225,7 @@ do
                 fi
                 echo "Sleep for $SLEEP_TIME seconds"
                 sleep $SLEEP_TIME
+                kubectl -n voltha port-forward svc/voltha-voltha-api 55555 &
     fi
 done
 
