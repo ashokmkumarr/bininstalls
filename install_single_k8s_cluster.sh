@@ -79,12 +79,12 @@ do
 
         if [[ $cmd1 == $POD_COUNT_1  && $cmd2 == $POD_COUNT_1 ]]
         then
-                echo "All the infra objects are running"
+                echo "All the kube-system pods are running and ready"
                 break
         else
                 if [ $i == 5 ]
                 then
-                        echo "All the infra objects are not running, Please verify the pods"  
+                        echo "All the kube-system pods are not running, Please verify the pods"  
                         echo "Exiting the script"                           
                         exit 1
                 fi

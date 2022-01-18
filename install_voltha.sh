@@ -14,7 +14,7 @@ echo "--------------------------------------------------------------------------
 cmd=$(lscpu | grep '^CPU(s):' | tr -s ' ' | awk '{ print $2; }')
 if [ "$cmd" -ge 8 ]
 then
-        echo "CPU is greater than equal to 8 cores"
+        echo "CPU is greater than or equal to 8 cores"
 else
         echo "Please ensure that CPU is not equal to or more than 8 cores"
         exit 1
@@ -271,7 +271,7 @@ then
         echo "killing the process: $get_pid"
         echo "$(kill -9 $get_pid)"
 else
-        echo -e "PID not present. Port $PORT_8101 available for port-forwarding\n"
+        echo -e "PID not present. Port $PORT_55555 available for port-forwarding\n"
 fi
 
 echo "--------------------------------------------------------------------------------------------------"
